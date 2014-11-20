@@ -5,5 +5,5 @@ function booleanres = isPointinEdge(pid,eid)
         booleanres = true;
     else
         booleanres = false;
-    endif
+    end
 end %function
