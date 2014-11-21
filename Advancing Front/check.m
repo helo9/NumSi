@@ -1,21 +1,42 @@
-function [ legal ] = check( P1, P2, P3, NewPoint )
+function [ legal ] = check( P1, P2, P3 )
 %Input P1 and P2 define the existing edge. P3 is the Point to evaluate.
 % Format Pi =[x,y]
 %   checks if a Point in Point or NewPoint is inside the new triangle and
 %   if an existing edge crosses the triangle.
 %   returns 1 if the triangle is legal 0 if it isnt
 
-global Edge Point
+global Edge Point NewPoint Triangle
 
 legal = 1;
 c = P2 - P1;
 a = P3 - P1;
 b = P3 - P2;
+warning OFF
+
+
+
+
+
+
+Pointges = [Point; NewPoint];
+%case 0: Points are allready defining a triangle
+if getPointidx(P3) ~= (-1) %testet ob P3 in Point oder in NewPoint ist 
+    for i = 1:size(Triangle,1)
+        existtriidx = getTrianglePointIdx(Triangle(i,:));
+        P1idx = getPointidx(P1);
+        P2idx = getPointidx(P2);
+        P3idx = getPointidx(P3);
+        newtriidx = [P1idx P2idx P3idx];
+        if isequal(sort(existtriidx),sort(newtriidx))
+            legal = 0;
+            return;
+        end
+    end
+end
+
 
 
 %case a: Point inside the triangle
-
-Pointges = [Point; NewPoint];
 
 for i = 1:size(Pointges,1);
     actpoint = Pointges(i,:);
@@ -40,7 +61,8 @@ for i = 1:size(Pointges,1);
  
 end
 
-% case b edge cutting triangle --> P3P1 cutted by edge;
+% case b edge cutting triangle --> P3P1 cutted by edge;(funktioniert nicht)
+%TODO: Schneiden mit der anderen Kante auch noch implementieren
 
 for  i = 1:size(Edge,1)
     actedge = Edge(i,:);
