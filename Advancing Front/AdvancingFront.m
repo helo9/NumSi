@@ -1,6 +1,6 @@
 clear all
 
-global Point Edge Triangle
+global Point Edge Triangle NewPoint
 
 % Gebiet definieren
 Point(1,:) = [1,1];
@@ -26,7 +26,7 @@ plotit;
 waitforbuttonpress();
 
 % Fortfahren bis alle Neuen Punkte verwurstet sind
-while size(NewPoint,1) > 1 || size(Front,2) > 3
+while size(Front,2) > 3  
     
     curEdgeid = Front(end);
     Front(end) = [];
@@ -34,13 +34,22 @@ while size(NewPoint,1) > 1 || size(Front,2) > 3
     %% Punkt auswählen
     
     % besten Punkt in Front finden
-    pids = unique(Edge(Front([1,2,end-1,end]),:)); %
+    pids = unique(Edge(Front(:),:)); 
     pids = pids(pids ~= Edge(curEdgeid,1) & pids ~= Edge(curEdgeid,2) ); % Punkte der aktuellen Kante rausnehmen
-    pids = setdiff(pids,unique(Edge(setdiff(1:length(Edge),Front),:))) %schon verbratene punkte rausnehmen
-    % TODO: Alle Punkte die Schnitte hervorrufen/sonstige Probleme machen könnten kicken
+      
     
     P1 = Point(Edge(curEdgeid,1),:);
     P2 = Point(Edge(curEdgeid,2),:);
+    
+    % Punkte werden �berpr�ft ob sie ein legales Dreieck bilden
+    
+    pidscopy = pids;
+    pids = [];
+    for i = 1:size(pidscopy,1)
+        if check(P1,P2,Point(pidscopy(i),:))
+            pids = [pids; pidscopy(i)]; 
+        end
+    end
     
     % Optimum für Front
     [foptvalue,foptid] = min(evaluate(P1,P2,Point(pids,:)));
@@ -84,7 +93,7 @@ while size(NewPoint,1) > 1 || size(Front,2) > 3
             Front([end-1,end]) = [];
             Front(end+1) = eid;
         else
-            error('Hier läuft einiges schief')
+            error('Gebiet trennt sich in 2 Teilgebiete auf evtl. rekursiver aufruf Implementieren!!!')
         end %if
     else
         % Verbindung mit neuem Knoten
