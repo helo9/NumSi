@@ -1,45 +1,59 @@
+import math
+
 class Point(object):
 	def __init__(self,x,y):
 		'''constructor defining and intitializing object attributes'''
 		self.x = x
 		self.y = y
-		self._edges = [] # "protected"
-			
-	def addEdge(self,edge):
-		'''add Edge containing Point to edges list'''
-		if not edge in self._edges:
-			self._edges.append(edge)
 	
-	def removeEdge(self,edge):
-		'''remove Edge containing Point from edges list'''
-		self._edges.remove(edge)
+	def __add__(self,other):
+		'''defining + operator'''
+		return Point(self.x+other.x,self.y+other.y)
 	
-class Edge(object):
+	def __sub__(self,other):
+		'''defining - operator'''
+		return Point(self.x-other.x,self.y-other.y)
+	
+	def __mul__(self,other):
+		'''defining * operator'''
+		if isinstance(other,(int,long,float)):
+			return Point(self.x*other,self.y*other)
+		elif isinstance(other,Point):
+			return Point(self.x*other.x,self.y*other.y)
+	
+	def __abs__(self):
+		return math.sqrt(self.x**2+self.y**2)
+	
+class Line(object):
 	def __init__(self,p1,p2):
 		'''constructor'''
 		self.point1 = p1
 		self.point2 = p2
-		self.point1.addEdge(self)
-		self.point2.addEdge(self)
 	
-	def __del__(self):
-		'''destructor removes Edge from edges list'''
-		self.point1.removeEdge(self)
-		self.point2.removeEdge(self)
-
-class Boundary(object):
-	pass
-
-class Volume(object):
-	pass
-
-class Mesh(object):
-	pass
-		
-
-		
-
-
-
-		
+	def getPoint(self,p):
+		return self.point1+(self.point2-self.point1)*p
 	
+	def __abs__(self):
+		return abs(self.point2-self.point1)
+
+class Polyline(object):
+	def __init__(self):
+		self.points = []
+	
+	def getPoint(self,p):
+		targetLength = p*abs(self)
+		curLength = 0
+		lp = None
+		
+		for point in self.points:
+			if lp != None:
+				tempLength = abs(point-lp)
+				if curLength+tempLength > targetLength:
+						return lp+(point-lp)*(targetLength-curLength)/abs(self)
+				
+				curLength += tempLength
+				
+			lp = point
+			
+	def __abs__(self):
+		sum(map(abs,self.points))
