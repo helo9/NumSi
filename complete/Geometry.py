@@ -24,6 +24,9 @@ class Point(object):
 	def __abs__(self):
 		return math.sqrt(self.x**2+self.y**2)
 	
+	def __str__(self):
+		return 'Point(%d,%d)' % (self.x,self.y)
+	
 class Line(object):
 	def __init__(self,p1,p2):
 		'''constructor'''
