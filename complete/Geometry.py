@@ -16,10 +16,17 @@ class Point(object):
 	
 	def __mul__(self,other):
 		'''defining * operator'''
-		if isinstance(other,(int,long,float)):
+		if isinstance(other,(int,float)):
 			return Point(self.x*other,self.y*other)
 		elif isinstance(other,Point):
 			return Point(self.x*other.x,self.y*other.y)
+	
+	def __truediv__(self,other):
+		'''defining / operator'''
+		if isinstance(other,(int,float)):
+			return Point(self.x/other,self.y/other)
+		elif isinstance(other,Point):
+			return Point(self.x/other.x,self.y/other.y)
 	
 	def __abs__(self):
 		return math.sqrt(self.x**2+self.y**2)
