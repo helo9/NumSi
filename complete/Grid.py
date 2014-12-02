@@ -52,8 +52,30 @@ class TestBoundary(Boundary):
 
 class Cell(object):
 	def __init__(self,pts=[]):
-		self.points = pts	
-
+		self.points = pts
+		self.center = (pts[0]+pts[1]+pts[2]+pts[3])/4
+		self.data = dict()
+		
+	def setData(self,ident,data):
+		self.data[ident] = data
+	
+	def getData(self,ident):
+		return self.data[ident]
+	
+	def getne(self):
+	
+		return self.points[2]
+		
+	def getnw(self):
+	
+		return self.points[3]
+	def getse(self):
+	
+		return self.points[1]
+	def getsw(self):
+	
+		return self.points[0]
+	
 class Grid(object):
 	@classmethod
 	def genAlgebraicGrid(cls,boundary):
@@ -75,6 +97,10 @@ class Grid(object):
 			return xi+(M+1)*eta
 		
 		tgrid = cls()
+		
+		tgrid.sizexi = M-1
+		tgrid.sizeeta = N-1
+
 		
 		logicpts = [Geometry.Point(x,y) for y in range(N+1) for x in range(M+1)]
 		
