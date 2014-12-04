@@ -1,7 +1,12 @@
 from Problem import Problem
-import numpy
+import numpy as np
+
+np = np
 
 class HeatFlow(Problem):
+	def _init_(self):
+		self.array = np.zeros((1,1))
+		
 	def materialproperties(self,ident, Data):
 		def setMaterial(acell):
 			acell.setData(ident,Data)
@@ -9,26 +14,61 @@ class HeatFlow(Problem):
 	
 	def diskretize(self):
 		
-		self.array = numpy.zeros((self.sizexi,self.sizeeta))
+		self.array = np.zeros((self.sizexi,self.sizeeta))
 		
-		for i = range(self.sizexi) 						#zählt xi hoch
-			for ii = range(self.sizeeta) 				#zählt eta hoch	
-				acell = self.cells((xi,eta))
+		for xi in range(self.sizexi -1): 					         	#zählt xi hoch
+			for eta in range(self.sizeeta -1): 				#zählt eta hoch	
+				acell = self.cells[(xi,eta)]
 				P  = acell.center
-				E  = self.cells((xi +1 , eta   )).center 
-				W  = self.cells((xi -1 , eta   )).center
-				S  = self.cells((xi    , eta -1)).center
-				N  = self.cells((xi    , eta +1)).center
-				NE = self.cells((xi +1 , eta +1)).center 
-				NW = self.cells((xi -1 , eta +1)).center
-				SE = self.cells((xi +1 , eta -1)).center
-				SW = self.cells((xi -1 , eta -1)).center
-				ne = acell.getne()
-				se = acell.getse()
-				nw = acell.getnw()
-				sw = acell.getsw()	
-				k = acell.getData('kappa')
 				
+				try:
+					E  = self.cells[xi +1 , eta   ].center 
+					NE = self.cells[xi +1 , eta +1].center 
+					SE = self.cells[xi +1 , eta -1].center
+					
+				except KeyError:
+					print('Ostfront konnte nicht gelesen werden alternative Behandlung der RB einfuegen')
+					print(xi , eta)
+				
+				try:
+					N  = self.cells[xi    , eta +1].center
+					NW = self.cells[xi -1 , eta +1].center
+					NE = self.cells[xi +1 , eta +1].center 
+					
+				except KeyError:
+					print('Nordfront konnte nicht gelesen werden alternative Behandlung der RB einfuegen')
+					print(xi , eta)
+				
+				try:
+					S  = self.cells[xi    , eta -1].center
+					SE = self.cells[xi +1 , eta -1].center
+					SW = self.cells[xi -1 , eta -1].center
+				
+				except KeyError:
+					print('Suedfront konnte nicht gelesn werden alternative Behandlung der RB einfuegen')
+					print(xi , eta)
+				
+				try:
+					W  = self.cells[xi -1 , eta   ].center
+					NW = self.cells[xi -1 , eta +1].center
+					SW = self.cells[xi -1 , eta -1].center
+				
+				except KeyError:
+					print('Westfront konnte nicht gelesn werden alternative Behandlung der RB einfuegen')
+					print(xi , eta)
+					
+					ne = acell.getne()
+					se = acell.getse()
+					nw = acell.getnw()
+					sw = acell.getsw()
+				
+				try:
+					k = acell.getData('kappa')			
+				except KeyError:
+					print("materialparameter kappa nicht gesetzt setze default")
+					k = 123
+			
+			
 				
 				NEgammaE  = abs(ne -N) + abs(ne -P) + abs(ne -NE) 
 				NEgammaN  =              abs(ne -P) + abs(ne -NE) + abs(ne -E)
@@ -58,10 +98,11 @@ class HeatFlow(Problem):
 				De = -k*(  (ne.y - se.y)**2 + (ne.x - se.x)**2)/((ne.x - se.x)*(E.y - P.y) - (ne.y - se.y)*(E.y - P.y))
 				Ne = -k*(  (ne.y - se.y)*(E.y - P.y) + (ne.x - se.x)*(E.x - P.x))/((ne.y - se.y)*(E.x - P.x) - (ne.x - se.x)*(E.y - P.y))  
 				
-				self.array[xi,eta] = self.array[xi,eta)] - De + Ne*NEgammaP /(NEgammaP + NEgammaE + NEgammaNE + NEgammaN) + Se*SEgammaP /(SEgammaP + SEgammaE + SEgammaSE + SEgammaS)
+				self.array[xi,eta] = self.array[xi,eta] - De + Ne*NEgammaP /(NEgammaP + NEgammaE + NEgammaNE + NEgammaN) + SE*SEgammaP /(SEgammaP + SEgammaE + SEgammaSE + SEgammaS)
 				
-				self.array[xi +1,eta] =   
-				
-				
+				self.array[xi +1,eta] =  
 				
 				
+				
+				
+			

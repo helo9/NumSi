@@ -122,7 +122,7 @@ class Grid(object):
 		pass
 		
 	def display(self):
-		from matplotlib import pyplot as plt
+		import matplotlib.pyplot as plt
 		
 		xcoords = [Point.x for Point in self.points]
 		ycoords = [Point.y for Point in self.points]
