@@ -120,3 +120,13 @@ class Grid(object):
 	@classmethod
 	def genEllipticGrid(cls,boundary):
 		pass
+		
+	def display(self):
+		from matplotlib import pyplot as plt
+		
+		xcoords = [Point.x for Point in self.points]
+		ycoords = [Point.y for Point in self.points]
+		plt.plot(xcoords,ycoords,marker='o',color='r',ls='')
+		plt.show()
+
+		
