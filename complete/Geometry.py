@@ -42,6 +42,9 @@ class Line(object):
 	
 	def getPoint(self,p):
 		return self.point1+(self.point2-self.point1)*p
+		
+	def midPoint(self):
+		return getPoint(self,0.5)
 	
 	def __abs__(self):
 		return abs(self.point2-self.point1)
