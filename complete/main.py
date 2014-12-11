@@ -22,6 +22,7 @@ testGrid.diskretize()
 
 
 
+
 testGrid.display()
 
 

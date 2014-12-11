@@ -98,8 +98,8 @@ class Grid(object):
 		
 		tgrid = cls()
 		
-		tgrid.sizexi = M-1
-		tgrid.sizeeta = N-1
+		tgrid.sizexi = M 
+		tgrid.sizeeta = N
 
 		
 		logicpts = [Geometry.Point(x,y) for y in range(N+1) for x in range(M+1)]
@@ -107,8 +107,8 @@ class Grid(object):
 		tgrid.points = list(map(transform,logicpts))
 		tgrid.cells =  dict()
 		
-		for xi in range(M-1):
-			for eta in range(N-1):
+		for xi in range(M):
+			for eta in range(N):
 				pts = []
 				pts.append(tgrid.points[ptId(xi,eta)])
 				pts.append(tgrid.points[ptId(xi+1,eta)])
