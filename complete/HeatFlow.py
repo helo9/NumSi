@@ -11,14 +11,18 @@ class HeatFlow(Problem):
 		def setMaterial(acell):
 			acell.setData(ident,Data)
 		map(setMaterial,self.cells.values)
-	
-	def diskretize(self):
-		self.Amatrix = np.zeros((self.sizexi * self.sizeeta,self.sizexi *self.sizeeta )) #In jeder Zeile des Systems Amatrix*phi = b steht die Erhaltungsgleichung für ein KV.
-																						#Die erste Zeile gehört zum KV links unten(eta = 0 xi = 0) Zeile 2:KV eta = 0 xi = 1 usw...
-																						#In den Spalten stehen die Koeffizienten des Gleichungssystems nach dem selben Prinzip            
 		
-		for xi in range(self.sizexi): 					#zÃ¤hlt xi hoch
-			for eta in range(self.sizeeta): 				#zÃ¤hlt eta hoch	
+	def diskretize(self):
+		# Amatrix describes the heat flow problem, every row contains the conservation equation for one cell
+		
+		# first row belongs to cell (xi=0,eta=0), second row to cell (xi=1,eta=0) and so on
+		self.Amatrix = np.zeros((self.sizexi * self.sizeeta,self.sizexi *self.sizeeta ))          
+		
+		def getId(axi,aeta):
+			return axi*self.sizexi+aeta
+		
+		for xi in range(self.sizexi): 					# iteration over xi
+			for eta in range(self.sizeeta): 			# iteration over eta
 				acell = self.cells[(xi,eta)]
 				P  = acell.center
 				try:
@@ -27,22 +31,22 @@ class HeatFlow(Problem):
 					print("materialparameter kappa nicht gesetzt setze default")
 					k = 1
 				
-				#Ostfront
+				#east front
 				if xi < self.sizexi-1 :
-					#kv geoert nicht zum Ostrand
+					# cell is not at east boundary
 					E  = self.cells[xi +1 , eta   ].center 
 					ne = acell.getne()
 					se = acell.getse()
 					De = -k*(  (ne.y - se.y)**2 + (ne.x - se.x)**2)/((ne.x - se.x)*(E.y - P.y) - (ne.y - se.y)*(E.x - P.x))
 					Ne = -k*(  (ne.y - se.y)*(E.y - P.y) + (ne.x - se.x)*(E.x - P.x))/((ne.y - se.y)*(E.x - P.x) - (ne.x - se.x)*(E.y - P.y))  
-				
-					#Füllen des ersten Terms Formel 4.15 für aktuelles KV
-					self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] = self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] - De
-					self.Amatrix[xi*self.sizexi + eta, (xi+1)*self.sizexi + eta] = self.Amatrix[xi*self.sizexi + eta, (xi+1)*self.sizexi + eta] + De
 					
-					#Für Östliches KV:
-					self.Amatrix[(xi+1)*self.sizexi + eta, (xi+1)*self.sizexi + eta ] = self.Amatrix[(xi+1)*self.sizexi + eta, (xi+1)*self.sizexi + eta ]  - De
-					self.Amatrix[(xi+1)*self.sizexi + eta, xi*self.sizexi + eta ] = self.Amatrix[(xi+1)*self.sizexi + eta, xi*self.sizexi + eta ] + De
+					#equation 4.15
+					self.Amatrix[getId(xi,eta),getId(xi,eta)] -= De
+					self.Amatrix[getId(xi,eta),getId(xi+1,eta)] += De
+					
+					# coefficient eastern cell
+					self.Amatrix[getId(xi+1,eta),getId(xi+1,eta)] -= De
+					self.Amatrix[getId(xi+1,eta),getId(xi,eta)] += De
 					
 					if eta == self.sizeeta - 1 :
 						print("BErechnung OStfront: KV gehoert zum Nordrand bewechnung einfuegen!")
@@ -61,18 +65,19 @@ class HeatFlow(Problem):
 				if eta < self.sizeeta-1 :
 					#kv geoert nicht zum Nordrand
 					N  = self.cells[xi, eta + 1].center 
+					
 					nw = acell.getnw()
 					ne = acell.getne()
-					Dn = -k*(  (ne.x - nw.x)**2 + (ne.y - nw.y)**2)/((ne.x - nw.x)*(N.y - P.y) - (ne.y - nw.y)*(N.x - P.x))
-					#Ne = -k*(  (ne.y - se.y)*(E.y - P.y) + (ne.x - se.x)*(E.x - P.x))/((ne.y - se.y)*(E.x - P.x) - (ne.x - se.x)*(E.y - P.y))  
+					
+					Dn = -k*(  (ne.x - nw.x)**2 + (ne.y - nw.y)**2)/((ne.x - nw.x)*(N.y - P.y) - (ne.y - nw.y)*(N.x - P.x)) 
 				
 					#Füllen des ersten Terms Formel 4.15 für aktuelles KV
-					self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] = self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] - Dn
-					self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta + 1] = self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta + 1] + Dn
+					self.Amatrix[getId(xi,eta),getId(xi,eta)] -= Dn
+					self.Amatrix[getId(xi,eta),getId(xi,eta+1)] += Dn
 					
 					#Für nördliches KV:
-					self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta ] = self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta ]  + De
-					self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta +1 ] = self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta +1 ] - De
+					self.Amatrix[getId(xi,eta+1),getId(xi,eta)] += Dn
+					self.Amatrix[getId(xi,eta+1),getId(xi,eta +1)] -=  Dn
 					
 					if xi == self.sizexi - 1 :
 						print("BErechnung Nordfront: KV gehoert zum Nordrand bewechnung einfuegen!")
