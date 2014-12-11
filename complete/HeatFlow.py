@@ -25,7 +25,7 @@ class HeatFlow(Problem):
 					k = acell.getData('kappa')			
 				except KeyError:
 					print("materialparameter kappa nicht gesetzt setze default")
-					k = 123
+					k = 1
 				
 				#Ostfront
 				if xi < self.sizexi-1 :
@@ -57,28 +57,28 @@ class HeatFlow(Problem):
 				print(self.Amatrix)
 				
 				
-				#Suedfront gerade in arbeit
+				#Nordfront
 				if eta < self.sizeeta-1 :
-					#kv geoert nicht zum Suedrand
-					S  = self.cells[xi, eta -1].center 
-					sw = acell.getsw()
-					se = acell.getse()
-					De = -k*(  (ne.y - se.y)**2 + (ne.x - se.x)**2)/((ne.x - se.x)*(E.y - P.y) - (ne.y - se.y)*(E.x - P.x))
+					#kv geoert nicht zum Nordrand
+					N  = self.cells[xi, eta + 1].center 
+					nw = acell.getnw()
+					ne = acell.getne()
+					Dn = -k*(  (ne.x - nw.x)**2 + (ne.y - nw.y)**2)/((ne.x - nw.x)*(N.y - P.y) - (ne.y - nw.y)*(N.x - P.x))
 					#Ne = -k*(  (ne.y - se.y)*(E.y - P.y) + (ne.x - se.x)*(E.x - P.x))/((ne.y - se.y)*(E.x - P.x) - (ne.x - se.x)*(E.y - P.y))  
 				
 					#Füllen des ersten Terms Formel 4.15 für aktuelles KV
-					self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] = self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] - De
-					self.Amatrix[xi*self.sizexi + eta, (xi+1)*self.sizexi + eta] = self.Amatrix[xi*self.sizexi + eta, (xi+1)*self.sizexi + eta] + De
+					self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] = self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta] - Dn
+					self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta + 1] = self.Amatrix[xi*self.sizexi + eta, xi*self.sizexi + eta + 1] + Dn
 					
-					#Für Östliches KV:
-					self.Amatrix[(xi+1)*self.sizexi + eta, (xi+1)*self.sizexi + eta ] = self.Amatrix[(xi+1)*self.sizexi + eta, (xi+1)*self.sizexi + eta ]  - De
-					self.Amatrix[(xi+1)*self.sizexi + eta, xi*self.sizexi + eta ] = self.Amatrix[(xi+1)*self.sizexi + eta, xi*self.sizexi + eta ] + De
+					#Für nördliches KV:
+					self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta ] = self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta ]  + De
+					self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta +1 ] = self.Amatrix[xi*self.sizexi + eta +1, xi*self.sizexi + eta +1 ] - De
 					
 					if xi == self.sizexi - 1 :
-						print("BErechnung Suedfront: KV gehoert zum Nordrand bewechnung einfuegen!")
+						print("BErechnung Nordfront: KV gehoert zum Nordrand bewechnung einfuegen!")
 					
 					elif xi == 0 :
-						print("Berechnung Ostfront: KV gehoert zum Suedrand berechnung einfuegen!" )
+						print("Berechnung Nordfront: KV gehoert zum Suedrand berechnung einfuegen!" )
 					
 					else:
 						pass
