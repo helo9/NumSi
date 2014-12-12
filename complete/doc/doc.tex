@@ -1,0 +1,27 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[german]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\title{doc}
+\author{jh}
+
+\begin{document}
+%\maketitle
+%\tableofcontents
+\section{Finite-Volumen-Methode}
+\subsection{Diskretisierung diffusiver Flüsse}
+
+\begin{align}
+F_n^D &\approx D_n ( \phi_N-\phi_P )+N_n(\phi_{ne} - \phi_{nw}) \\
+D_n &= \frac{(x_{ne}-x_{nw})^2 +(y_{ne}-y_{nw})^2}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)} \\
+N_n &= \frac{(y_N-y_P)(y_{nw}-y_{ne})+(x_N-x_P)(x_{nw}-x_{ne})}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)}
+\end{align}
+\subsection{Diskretisierung diffusiver Flüsse am Rand}
+\begin{equation}
+F_s^D = - \frac{(x_{se}-x_{sw})^2+(y_{se}-y_{sw})^2}{(x_{se}-x_{sw})(y_P-y_{sm})-(y_{se}-y_{sw})(x_P-x_{sm})(\phi_P-\phi_{sm}}
+\end{equation}
+
+\end{document}

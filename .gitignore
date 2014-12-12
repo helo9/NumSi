@@ -1,2 +1,7 @@
 *~
 *.pyc
+*.log
+*.toc
+*.pdf
+*.aux
+
