@@ -1,3 +1,5 @@
+# -*- coding: iso-8859-15 -*-
+
 from Problem import Problem
 import numpy as np
 
@@ -13,7 +15,7 @@ class HeatFlow(Problem):
 	def __init__(self):
 		self.Amatrix = np.zeros((1,1))
 		self.SourceTerm = dict()
-		self.bvector = np.array([0])  # ich weiß nicht ob das der richtige Datentyp für ein Vektor ist
+		self.bvector = np.array([0]) 
 		
 	def materialproperties(self,ident, Data):
 		def setMaterial(acell):

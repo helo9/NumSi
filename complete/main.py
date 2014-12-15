@@ -4,10 +4,10 @@ Created on 03.12.2014
 @author: David
 '''
 import Grid
-from src.NumSi.complete import Geometry
-from src.NumSi.complete.Grid import TestBoundary
-from src.NumSi.complete.HeatFlow import HeatFlow
-from src.NumSi.complete.HeatFlow import TestSourceTerm
+import Geometry
+from Grid import TestBoundary
+from HeatFlow import HeatFlow
+from HeatFlow import TestSourceTerm
 
 testBound = Grid.TestBoundary()
 
@@ -22,6 +22,8 @@ testHF.diskretize()
 testHF.solve()
 print(testHF.result)
 
-testHF.display()
+testHF.displaysolution()
+
+#testHF.display()
 
    
