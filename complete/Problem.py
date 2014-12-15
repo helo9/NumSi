@@ -12,8 +12,8 @@ class Problem(Grid):
 	
 	def displaysolution(self):
 		import matplotlib.pyplot as plt
-		x = array([self.cells[(xi,eta)].center.x for eta in range(self.sizeeta) for xi in range(self.sizexi)])
-		y = array([self.cells[(xi,eta)].center.y for eta in range(self.sizeeta) for xi in range(self.sizexi)])
+		x = array([self.cells[(xi,eta)].center.x for xi in range(self.sizexi) for eta in range(self.sizeeta)])
+		y = array([self.cells[(xi,eta)].center.y for xi in range(self.sizexi) for eta in range(self.sizeeta)])
 		X = x.reshape((self.sizexi,self.sizeeta))
 		Y = y.reshape((self.sizexi,self.sizeeta))
 		z = self.result.reshape((3,3))

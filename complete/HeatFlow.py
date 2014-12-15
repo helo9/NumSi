@@ -57,7 +57,7 @@ class HeatFlow(Problem):
 	def diskretize(self):
 		# Amatrix describes the heat flow problem, every row contains the conservation equation for one cell
 		
-		# first row belongs to cell (xi=0,eta=0), second row to cell (xi=1,eta=0) and so on
+		# first row belongs to cell (xi=0,eta=0), second row to cell (xi=0,eta=1) and so on
 		self.Amatrix = np.zeros((self.sizexi * self.sizeeta,self.sizexi *self.sizeeta ))      
 		self.bvector = np.zeros((self.sizexi * self.sizeeta, 1))    
 		
