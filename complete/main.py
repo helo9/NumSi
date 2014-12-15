@@ -7,23 +7,21 @@ import Grid
 from src.NumSi.complete import Geometry
 from src.NumSi.complete.Grid import TestBoundary
 from src.NumSi.complete.HeatFlow import HeatFlow
+from src.NumSi.complete.HeatFlow import TestSourceTerm
 
 testBound = Grid.TestBoundary()
 
+testST = TestSourceTerm()
 
 
-testGrid = HeatFlow.genAlgebraicGrid(testBound)
+testHF = HeatFlow.genAlgebraicGrid(testBound)
 
+testHF.setSourceTerm(testST)
+testHF.editSourceTerm()
+testHF.diskretize()
+testHF.solve()
+print(testHF.result)
 
-
-     
-
-testGrid.diskretize()
-
-
-
-
-testGrid.display()
-
+testHF.display()
 
    

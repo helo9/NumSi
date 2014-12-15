@@ -21,7 +21,13 @@ N_n &= \frac{(y_N-y_P)(y_{nw}-y_{ne})+(x_N-x_P)(x_{nw}-x_{ne})}{(x_{ne}-x_{nw})(
 \end{align}
 \subsection{Diskretisierung diffusiver Flüsse am Rand}
 \begin{equation}
-F_s^D = - \frac{(x_{se}-x_{sw})^2+(y_{se}-y_{sw})^2}{(x_{se}-x_{sw})(y_P-y_{sm})-(y_{se}-y_{sw})(x_P-x_{sm})(\phi_P-\phi_{sm}}
+F_s^D = - \frac{(x_{se}-x_{sw})^2+(y_{se}-y_{sw})^2}{(x_{se}-x_{sw})(y_P-y_{sm})-(y_{se}-y_{sw})(x_P-x_{sm})}(\phi_P-\phi_{sm})
+\end{equation}
+
+\subsection{Zugrundeliegende Diff. Gleichung}
+
+\begin{equation}
+-\kappa \frac{\partial^2 T}{\partial x^2} -\kappa \frac{\partial^2 T}{\partial x^2} = \rho q 
 \end{equation}
 
 \end{document}

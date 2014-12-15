@@ -3,40 +3,102 @@ import numpy as np
 
 np = np
 
+class TestSourceTerm(object):
+	def __init__(self):
+		self.SourceTerm = dict()
+		self.SourceTerm[(1,1)] = 1
+
+
 class HeatFlow(Problem):
-	def _init_(self):
+	def __init__(self):
 		self.Amatrix = np.zeros((1,1))
+		self.SourceTerm = dict()
+		self.bvector = np.array([0])  # ich weiß nicht ob das der richtige Datentyp für ein Vektor ist
 		
 	def materialproperties(self,ident, Data):
 		def setMaterial(acell):
 			acell.setData(ident,Data)
 		map(setMaterial,self.cells.values)
 		
+	def setSourceTerm(self,st):
+		self.SourceTerm = st.SourceTerm
+		
+	def editSourceTerm(self):
+		print('hier kommt jetzt idealerweise eine eingabe um eintraege im dict zu ueberschreiben')
+	
+	def getBounCond(self,xi,eta,direction):
+			#provisional hard coded Boundary conditions
+			#Declaration: returns list of length 2 
+			#first item: type of BoundaryCondition(n'th deviation in normal direction): 0 refers to Dirichlet BC; 1 refers to neuman BC			-1: error no bc found
+			#second item: value
+			#accepts logical coordinates + direction('n','s','o' and 'w')
+			
+			if xi ==  0 and direction == 'w':
+				print('Adiabater Westrand')
+				return [1, 0]
+			
+			if xi ==  (self.sizexi -1) and direction == 'o':
+				print('Ostrand mit dt nach dn = 1')
+				return [1, 1]
+			
+			if eta == 0 and direction == 's':
+				print('Suedrand T == 293 K' )
+				return[0, 293]
+				
+			if eta == (self.sizeeta -1) and direction == 'n':
+				print('Nordrand T == 273 K')
+				return[0,273]
+			
+			print('no boundary conditon found: something went horribly wrong')	
+			return[-1, 0]			 
+		
 	def diskretize(self):
 		# Amatrix describes the heat flow problem, every row contains the conservation equation for one cell
 		
 		# first row belongs to cell (xi=0,eta=0), second row to cell (xi=1,eta=0) and so on
-		self.Amatrix = np.zeros((self.sizexi * self.sizeeta,self.sizexi *self.sizeeta ))          
+		self.Amatrix = np.zeros((self.sizexi * self.sizeeta,self.sizexi *self.sizeeta ))      
+		self.bvector = np.zeros((self.sizexi * self.sizeeta, 1))    
 		
 		def getId(axi,aeta):
 			return axi*self.sizexi+aeta
+		
+			
 		
 		for xi in range(self.sizexi): 					# iteration over xi
 			for eta in range(self.sizeeta): 			# iteration over eta
 				acell = self.cells[(xi,eta)]
 				P  = acell.center
+				ne = acell.getne()
+				se = acell.getse()
+				sw = acell.getsw()
+				nw = acell.getnw()
+				sm = (sw + se)/2
+				
+				print(xi)
+				print(eta)
 				try:
 					k = acell.getData('kappa')			
 				except KeyError:
 					print("materialparameter kappa nicht gesetzt setze default")
 					k = 1
 				
+				try:
+					q = self.SourceTerm[(xi,eta)]
+					print('q = ', q)			
+				except KeyError:
+					print("quellterm nicht gefunden setze q = 0")
+					q  = 0
+				
+				
+				#set source term
+				
+				self.bvector[getId(xi, eta), 0] += q 
+				
+				
 				#east front
 				if xi < self.sizexi-1 :
 					# cell is not at east boundary
 					E  = self.cells[xi +1 , eta   ].center 
-					ne = acell.getne()
-					se = acell.getse()
 					De = -k*(  (ne.y - se.y)**2 + (ne.x - se.x)**2)/((ne.x - se.x)*(E.y - P.y) - (ne.y - se.y)*(E.x - P.x))
 					Ne = -k*(  (ne.y - se.y)*(E.y - P.y) + (ne.x - se.x)*(E.x - P.x))/((ne.y - se.y)*(E.x - P.x) - (ne.x - se.x)*(E.y - P.y))  
 					
@@ -56,26 +118,21 @@ class HeatFlow(Problem):
 					
 					else:
 						pass
-				print(xi)
-				print(eta)
-				print(self.Amatrix)
+				
+				
 				
 				
 				#Nordfront
 				if eta < self.sizeeta-1 :
 					#kv geoert nicht zum Nordrand
 					N  = self.cells[xi, eta + 1].center 
-					
-					nw = acell.getnw()
-					ne = acell.getne()
-					
-					Dn = -k*(  (ne.x - nw.x)**2 + (ne.y - nw.y)**2)/((ne.x - nw.x)*(N.y - P.y) - (ne.y - nw.y)*(N.x - P.x)) 
+					Dn = -k*(  (ne.x - nw.x)**2 + (ne.y - nw.y)**2)/(  (ne.y - nw.y)*(N.x - P.x) - (ne.x - nw.x)*(N.y - P.y)) 
 				
-					#Füllen des ersten Terms Formel 4.15 für aktuelles KV
+					#Fuellen des ersten Terms Formel 4.15 für aktuelles KV
 					self.Amatrix[getId(xi,eta),getId(xi,eta)] -= Dn
 					self.Amatrix[getId(xi,eta),getId(xi,eta+1)] += Dn
 					
-					#Für nördliches KV:
+					#Fuer nördliches KV:
 					self.Amatrix[getId(xi,eta+1),getId(xi,eta)] += Dn
 					self.Amatrix[getId(xi,eta+1),getId(xi,eta +1)] -=  Dn
 					
@@ -87,9 +144,31 @@ class HeatFlow(Problem):
 					
 					else:
 						pass
-				print(xi)
-				print(eta)
+					
+				#southernfront
+				
+				#southern boundary condition
+				print('evaluate southern BC')
+				
+				if eta == 0:
+					result = self.getBounCond(xi, eta, 's')
+					if result[0] == 0:
+						print('Dirichlet Rand')
+						Ds = -k*((se.x - sw.x)**2 + (se.y - sw.y)**2)/((se.x - sw.x)*(P.y - sm.y) - (se.y - sw.y)*(P.x - sm.x))
+						self.Amatrix[getId(xi, eta),getId(xi, eta)] += Ds
+						self.bvector[getId(xi, eta)] += result[1] * Ds
+						
+					if result[0] == 1:
+						print('Neumann Rand noch nicht implementiert')
+						
+					
+					
+				
+				
 				print(self.Amatrix)
+				
+				print(self.bvector)
+				
 					
 			''''
 						E  = self.cells[xi +1 , eta   ].center 

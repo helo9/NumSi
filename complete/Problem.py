@@ -6,6 +6,9 @@ class Problem(Grid):
 		self.boundaries = boundaries
 	
 	def solve(self):
-		self.result = linsolve(self.A,self.b)
+		self.result = linsolve(self.Amatrix,self.bvector)
+		
+		
+
 
 
