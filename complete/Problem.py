@@ -1,5 +1,7 @@
 from Grid import Grid
 from numpy.linalg import solve as linsolve
+from numpy import array
+import numpy
 
 class Problem(Grid):
 	def createProblem(self,boundaries):
@@ -10,12 +12,14 @@ class Problem(Grid):
 	
 	def displaysolution(self):
 		import matplotlib.pyplot as plt
-		x = [self.cells[(xi,eta)].center.x for y in range(self.sizeeta+1) for x in range(self.sizexi+1)]
-		y = [self.cells[(xi,eta)].center.y for y in range(self.sizeeta+1) for x in range(self.sizexi+1)]
-		z = self.result
+		x = array([self.cells[(xi,eta)].center.x for eta in range(self.sizeeta) for xi in range(self.sizexi)])
+		y = array([self.cells[(xi,eta)].center.y for eta in range(self.sizeeta) for xi in range(self.sizexi)])
+		X = x.reshape((self.sizexi,self.sizeeta))
+		Y = y.reshape((self.sizexi,self.sizeeta))
+		z = self.result.reshape((3,3))
 		
-		plt.contour(x,y,z)
-		plt.contourf(x,y,z)
+		plt.contour(X,Y,z)
+		plt.contourf(X,Y,z)
 		#plt.colorbar()
 		plt.show()
 		
