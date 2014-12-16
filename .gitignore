@@ -4,4 +4,4 @@
 *.toc
 *.pdf
 *.aux
-
+*synctex.gz

@@ -6,25 +6,52 @@
 \usepackage{amssymb}
 
 \title{doc}
-\author{jh}
 
 \begin{document}
 %\maketitle
 %\tableofcontents
-\section{Finite-Volumen-Methode}
+\section{Finite-Volumen-Methode für strukturiertes Vierecksgitter}
 \subsection{Diskretisierung diffusiver Flüsse}
-
+Nur Ost- und Nordseite werden diskretisiert. Diffusive Flüsse auf West- und Südseite werden außer am Rand mithilfe der Flüsse durch Ost- und Nordseite der benachbarten Kontrollvolumen bestimmt.
+\subsubsection{Nord}
 \begin{align}
 F_n^D &\approx D_n ( \phi_N-\phi_P )+N_n(\phi_{ne} - \phi_{nw}) \\
-D_n &= \frac{(x_{ne}-x_{nw})^2 +(y_{ne}-y_{nw})^2}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)} \\
-N_n &= \frac{(y_N-y_P)(y_{nw}-y_{ne})+(x_N-x_P)(x_{nw}-x_{ne})}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)}
+D_n &= \alpha \frac{(x_{ne}-x_{nw})^2 +(y_{ne}-y_{nw})^2}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)} \\
+N_n &= \alpha \frac{(y_N-y_P)(y_{nw}-y_{ne})+(x_N-x_P)(x_{nw}-x_{ne})}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)}
+\end{align}
+\subsubsection{Ost}
+\begin{align}
+F_e^D &\approx D_e ( \phi_E-\phi_P )+N_e(\phi_{ne} - \phi_{nw}) \\
+D_e &= \alpha \frac{(x_{ne}-x_{se})^2 +(y_{ne}-y_{se})^2}{(x_{ne}-x_{se})(y_E-y_P)-(y_{ne}-y_{se})(x_E-x_P)} \\
+N_e &= \alpha \frac{(y_E-y_P)(y_{ne}-y_{se})+(x_E-x_P)(x_{ne}-x_{se})}{(y_{ne}-y_{se})(x_E-x_P)-(x_{ne}-x_{se})(y_E-y_P)}
 \end{align}
 \subsection{Diskretisierung diffusiver Flüsse am Rand}
+\subsection{Dirichlet}
+\subsubsection{Nord}
 \begin{equation}
-F_s^D = - \frac{(x_{se}-x_{sw})^2+(y_{se}-y_{sw})^2}{(x_{se}-x_{sw})(y_P-y_{sm})-(y_{se}-y_{sw})(x_P-x_{sm})}(\phi_P-\phi_{sm})
+F_n^D = -\alpha \frac{(x_{ne}-x_{nw})^2+(y_{ne}-y_{nw})^2}{(x_{ne}-x_{nw})(y_{nm}-y_P)-(y_{ne}-y_{ne})(x_{nm}-x_P)}(\phi_{nm}-\phi_P)
 \end{equation}
+\subsubsection{Ost}
+\begin{equation}
+F_e^D = -\alpha \frac{(x_{ne}-x_{se})^2+(y_{ne}-y_{se})^2}{(x_{em}-x_P)(y_{ne}-y_{se})-(y_{em}-y_P)(x_{ne}-x_{se})}(\phi_{em}-\phi_P)
+\end{equation}
+\subsubsection{Süd}
+\begin{equation}
+F_s^D = -\alpha \frac{(x_{se}-x_{sw})^2+(y_{se}-y_{sw})^2}{(x_{se}-x_{sw})(y_P-y_{sm})-(y_{se}-y_{sw})(x_P-x_{sm})}(\phi_{sm}-\phi_P)
+\end{equation}
+\subsubsection{West}
+\begin{equation}
+F_w^D = -\alpha \frac{(x_{nw}-x_{sw})^2+(y_{nw}-y_{sw})^2}{(x_P-x_{wm})(y_{nw}-y_{sw})-(y_P-y_{wm})(x_{nw}-x_{sw})}(\phi_P-\phi_{wm})
+\end{equation}
+\subsection{Neumann}
+\subsubsection{Nord}
+\subsubsection{Ost}
+\subsubsection{Süd}
+\subsubsection{West}
 
-\subsection{Zugrundeliegende Diff. Gleichung}
+
+
+\section{Anwednung auf Wärmeleitung}
 
 \begin{equation}
 -\kappa \frac{\partial^2 T}{\partial x^2} -\kappa \frac{\partial^2 T}{\partial x^2} = \rho q 
