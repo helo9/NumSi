@@ -17,10 +17,10 @@ class Problem(Grid):
 		X = x.reshape((self.sizexi,self.sizeeta))
 		Y = y.reshape((self.sizexi,self.sizeeta))
 		z = self.result.reshape((3,3))
-		
+		print(z)
 		plt.contour(X,Y,z)
 		plt.contourf(X,Y,z)
-		#plt.colorbar()
+		plt.colorbar()
 		plt.show()
 		
 		
