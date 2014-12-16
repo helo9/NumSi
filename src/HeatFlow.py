@@ -8,7 +8,7 @@ np = np
 class TestSourceTerm(object):
 	def __init__(self):
 		self.SourceTerm = dict()
-		#self.SourceTerm[(5,5)] = 10000
+		self.SourceTerm[(5,5)] = 10
 
 class HeatFlow(Problem):
 	def __init__(self):
