@@ -14,6 +14,25 @@ class Boundary(object):
 	def getWest(self):
 		pass
 
+class CartesianBoundary(Boundary):
+	def __init__(self,xmax,ymax,M,N):
+		self.xmax = xmax
+		self.ymax = ymax
+		self.iM = M
+		self.iN = N
+	def M(self):
+		return self.iM
+	def N(self):
+		return self.iN
+	def getSouth(self,no):
+		return Geometry.Point(no*self.xmax/self.iM,0)
+	def getNorth(self,no):
+		return Geometry.Point(no*self.xmax/self.iM,self.ymax)
+	def getWest(self,no):
+		return Geometry.Point(0,no*self.ymax/self.iN)
+	def getEast(self,no):
+		return Geometry.Point(self.xmax,no*self.ymax/self.iN)
+
 class TestBoundary(Boundary):
 	def __init__(self):
 		self.South = Geometry.Polyline()

@@ -9,7 +9,7 @@ from Grid import TestBoundary
 from HeatFlow import HeatFlow
 from HeatFlow import TestSourceTerm
 
-testBound = Grid.TestBoundary()
+testBound = Grid.CartesianBoundary(3,3,71,71)
 
 testST = TestSourceTerm()
 
@@ -20,7 +20,7 @@ testHF.setSourceTerm(testST)
 testHF.editSourceTerm()
 testHF.diskretize()
 testHF.solve()
-print(testHF.result)
+#print(testHF.result)
 
 testHF.displaysolution()
 
