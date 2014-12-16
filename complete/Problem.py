@@ -1,7 +1,6 @@
 from Grid import Grid
 from numpy.linalg import solve as linsolve
 from numpy import array
-import numpy
 
 class Problem(Grid):
 	def createProblem(self,boundaries):
