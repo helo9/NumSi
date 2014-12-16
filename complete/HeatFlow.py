@@ -8,7 +8,7 @@ np = np
 class TestSourceTerm(object):
 	def __init__(self):
 		self.SourceTerm = dict()
-		self.SourceTerm[(1,1)] = 1
+		self.SourceTerm[(1,1)] = 10
 
 
 class HeatFlow(Problem):
@@ -75,6 +75,9 @@ class HeatFlow(Problem):
 				sw = acell.getsw()
 				nw = acell.getnw()
 				sm = (sw + se)/2
+				nm = (nw + ne)/2
+				em = (ne + se)/2
+				wm = (nw + sw)/2
 				
 				print(xi)
 				print(eta)
@@ -97,12 +100,27 @@ class HeatFlow(Problem):
 				self.bvector[getId(xi, eta), 0] += q 
 				
 				
-				#east front
+				#east front			
+				#eastern boundary condition
+				
+				if xi == self.sizexi -1:
+					print('evaluate eastern BC')
+					result = self.getBounCond(xi, eta, 'e')
+					if result[0] == 0:
+						print('Dirichlet Rand')
+						Ds = -k*((ne.x - se.x)**2 + (ne.y - se.y)**2)/((em.x - P.x)*(ne.y - se.y) - (em.y - P.y)*(ne.x - se.x))
+						self.Amatrix[getId(xi, eta),getId(xi, eta)] -= Ds
+						self.bvector[getId(xi, eta)] -= result[1] * Ds
+						
+					if result[0] == 1:
+						print('Neumann Rand noch nicht implementiert')
+				
+				
 				if xi < self.sizexi-1 :
 					# cell is not at east boundary
 					E  = self.cells[xi +1 , eta   ].center 
-					De = -k*(  (ne.y - se.y)**2 + (ne.x - se.x)**2)/((ne.x - se.x)*(E.y - P.y) - (ne.y - se.y)*(E.x - P.x))
-					Ne = -k*(  (ne.y - se.y)*(E.y - P.y) + (ne.x - se.x)*(E.x - P.x))/((ne.y - se.y)*(E.x - P.x) - (ne.x - se.x)*(E.y - P.y))  
+					De = k*(  (ne.y - se.y)**2 + (ne.x - se.x)**2)/((ne.x - se.x)*(E.y - P.y) - (ne.y - se.y)*(E.x - P.x))
+					#Ne = -k*(  (ne.y - se.y)*(E.y - P.y) + (ne.x - se.x)*(E.x - P.x))/((ne.y - se.y)*(E.x - P.x) - (ne.x - se.x)*(E.y - P.y))  
 					
 					#equation 4.15
 					self.Amatrix[getId(xi,eta),getId(xi,eta)] -= De
@@ -125,10 +143,31 @@ class HeatFlow(Problem):
 				
 				
 				#Nordfront
+				#northern boundary condition
+				
+				if eta == self.sizeeta -1:
+					print('evaluate northern BC')
+					result = self.getBounCond(xi, eta, 'n')
+					if result[0] == 0:
+						print('Dirichlet Rand')
+						Ds = -k*((ne.x - nw.x)**2 + (ne.y - nw.y)**2)/((ne.x - nw.x)*(nm.y - P.y) - (ne.y - nw.y)*(nm.x - P.x))
+						self.Amatrix[getId(xi, eta),getId(xi, eta)] -= Ds
+						self.bvector[getId(xi, eta)] -= result[1] * Ds
+						
+					if result[0] == 1:
+						print('Neumann Rand noch nicht implementiert')
+				
+				
+				
+				
+				
+				
+				
+				
 				if eta < self.sizeeta-1 :
 					#kv geoert nicht zum Nordrand
 					N  = self.cells[xi, eta + 1].center 
-					Dn = -k*(  (ne.x - nw.x)**2 + (ne.y - nw.y)**2)/(  (ne.y - nw.y)*(N.x - P.x) - (ne.x - nw.x)*(N.y - P.y)) 
+					Dn = k*(  (ne.x - nw.x)**2 + (ne.y - nw.y)**2)/(  (ne.y - nw.y)*(N.x - P.x) - (ne.x - nw.x)*(N.y - P.y)) 
 				
 					#Fuellen des ersten Terms Formel 4.15 für aktuelles KV
 					self.Amatrix[getId(xi,eta),getId(xi,eta)] -= Dn
@@ -150,13 +189,14 @@ class HeatFlow(Problem):
 				#southernfront
 				
 				#southern boundary condition
-				print('evaluate southern BC')
+				
 				
 				if eta == 0:
+					print('evaluate southern BC')
 					result = self.getBounCond(xi, eta, 's')
 					if result[0] == 0:
 						print('Dirichlet Rand')
-						Ds = -k*((se.x - sw.x)**2 + (se.y - sw.y)**2)/((se.x - sw.x)*(P.y - sm.y) - (se.y - sw.y)*(P.x - sm.x))
+						Ds = k*((se.x - sw.x)**2 + (se.y - sw.y)**2)/((se.x - sw.x)*(P.y - sm.y) - (se.y - sw.y)*(P.x - sm.x))
 						self.Amatrix[getId(xi, eta),getId(xi, eta)] += Ds
 						self.bvector[getId(xi, eta)] += result[1] * Ds
 						
@@ -164,7 +204,24 @@ class HeatFlow(Problem):
 						print('Neumann Rand noch nicht implementiert')
 						
 					
-					
+				
+				
+				
+				#western front			
+				#western boundary condition
+				
+				if xi == 0:
+					print('evaluate western BC')
+					result = self.getBounCond(xi, eta, 'w')
+					if result[0] == 0:
+						print('Dirichlet Rand')
+						Ds = -k*((nw.x - sw.x)**2 + (nw.y - sw.y)**2)/((P.x - wm.x)*(nw.y - sw.y) - (P.y - wm.y)*(nw.x - sw.x))
+						self.Amatrix[getId(xi, eta),getId(xi, eta)] -= Ds
+						self.bvector[getId(xi, eta)] -= result[1] * Ds
+						
+					if result[0] == 1:
+						print('Neumann Rand noch nicht implementiert')
+				
 				
 				
 				print(self.Amatrix)
