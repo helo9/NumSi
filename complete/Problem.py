@@ -16,7 +16,7 @@ class Problem(Grid):
 		y = array([self.cells[(xi,eta)].center.y for xi in range(self.sizexi) for eta in range(self.sizeeta)])
 		X = x.reshape((self.sizexi,self.sizeeta))
 		Y = y.reshape((self.sizexi,self.sizeeta))
-		z = self.result.reshape((3,3))
+		z = self.result.reshape((self.sizexi,self.sizeeta))
 		print(z)
 		plt.contour(X,Y,z)
 		plt.contourf(X,Y,z)

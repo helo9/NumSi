@@ -8,7 +8,7 @@ np = np
 class TestSourceTerm(object):
 	def __init__(self):
 		self.SourceTerm = dict()
-		self.SourceTerm[(1,1)] = 1
+		self.SourceTerm[(35,35)] = -1
 
 
 class HeatFlow(Problem):
@@ -68,6 +68,7 @@ class HeatFlow(Problem):
 		
 		for xi in range(self.sizexi): 					# iteration over xi
 			for eta in range(self.sizeeta): 			# iteration over eta
+				print('Calculating:(%d/%d,%d/%d)' % (xi,self.sizexi,eta,self.sizeeta))
 				acell = self.cells[(xi,eta)]
 				P  = acell.center
 				ne = acell.getne()
@@ -76,8 +77,6 @@ class HeatFlow(Problem):
 				nw = acell.getnw()
 				sm = (sw + se)/2
 				
-				print(xi)
-				print(eta)
 				try:
 					k = acell.getData('kappa')			
 				except KeyError:
