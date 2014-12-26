@@ -17,14 +17,19 @@ Nur Ost- und Nordseite werden diskretisiert. Diffusive Flüsse auf West- und Sü
 \begin{align}
 F_n^D &\approx D_n ( \phi_N-\phi_P )+N_n(\phi_{ne} - \phi_{nw}) \\
 D_n &= \alpha \frac{(x_{ne}-x_{nw})^2 +(y_{ne}-y_{nw})^2}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)} \\
-N_n &= \alpha \frac{(y_N-y_P)(y_{nw}-y_{ne})+(x_N-x_P)(x_{nw}-x_{ne})}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)}
+N_n &= \alpha \frac{(y_N-y_P)(y_{nw}-y_{ne})+(x_N-x_P)(x_{nw}-x_{ne})}{(x_{ne}-x_{nw})(y_N-y_P)-(y_{ne}-y_{nw})(x_N-x_P)} \\
 \end{align}
 \subsubsection{Ost}
 \begin{align}
-F_e^D &\approx D_e ( \phi_E-\phi_P )+N_e(\phi_{ne} - \phi_{nw}) \\
+F_e^D &\approx D_e ( \phi_E-\phi_P )+N_e(\phi_{ne} - \phi_{se}) \\
 D_e &= \alpha \frac{(x_{ne}-x_{se})^2 +(y_{ne}-y_{se})^2}{(x_{ne}-x_{se})(y_E-y_P)-(y_{ne}-y_{se})(x_E-x_P)} \\
 N_e &= \alpha \frac{(y_E-y_P)(y_{ne}-y_{se})+(x_E-x_P)(x_{ne}-x_{se})}{(y_{ne}-y_{se})(x_E-x_P)-(x_{ne}-x_{se})(y_E-y_P)}
 \end{align}
+\subsubsection{Eckwerte}
+Die Eckwerte werden mithilfe der vier benachbarten Werte interpoliert. Als Gewichtungsfaktor $\gamma$ wird  der inverse Abstand verwendet.
+\begin{equation}
+\phi_{ne} = \frac{\sum_i \gamma_i \phi_i}{\sum_i \gamma_i}
+\end{equation}
 \subsection{Diskretisierung diffusiver Flüsse am Rand}
 \subsection{Dirichlet}
 \subsubsection{Nord}

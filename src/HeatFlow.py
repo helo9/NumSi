@@ -62,12 +62,37 @@ class HeatFlow(Problem):
 		
 		def getId(axi,aeta):
 			return axi*(self.sizeeta)+aeta
+		
+		def getGammas(P,others):
+			''' weighting function for corner value'''
+			gammas = []
+			for p in others:
+				gammas.append(1/abs(p-P))
+			
+			return np.array(gammas)
 
 		for xi in range(self.sizexi): 					# iteration over xi
 			for eta in range(self.sizeeta): 			# iteration over eta
 				print('Calculating: (%d,%d),(%d,%d)' % (xi,eta,self.sizexi,self.sizeeta) )
 				acell = self.cells[(xi,eta)]
 				P  = acell.center
+				
+				N = E = NE = S = SE = W = NW = None
+				if eta < self.sizeeta-1:
+					N = self.cells[(xi,eta+1)].center
+				if xi < self.sizexi-1:
+					E = self.cells[(xi+1,eta)].center
+				if eta < self.sizeeta-1 and xi < self.sizexi-1:
+					NE = self.cells[(xi+1,eta+1)].center
+				if eta > 0:
+					S = self.cells[(xi,eta-1)].center
+				if eta > 0 and xi < self.sizexi-1:
+					SE = self.cells[(xi+1,eta-1)].center
+				if xi > 0:
+					W  = self.cells[(xi-1,eta)].center
+				if xi > 0 and eta < self.sizeeta-1:
+					NW = self.cells[(xi-1,eta+1)].center
+					
 				ne = acell.getne()
 				se = acell.getse()
 				sw = acell.getsw()
@@ -83,6 +108,9 @@ class HeatFlow(Problem):
 				EId = getId(xi+1,eta)
 				WId = getId(xi-1,eta)
 				SId = getId(xi,eta-1)
+				NEId= getId(xi+1,eta+1)
+				SEId=getId(xi+1,eta-1)
+				NWId=getId(xi-1,eta+1)
 				
 				print(str((PId,NId,EId,WId,SId)))
 				
@@ -92,8 +120,7 @@ class HeatFlow(Problem):
 					print("materialparameter kappa nicht gesetzt setze default")
 					k = 1				
 						
-				#eastern boundary condition
-				
+				#east boundary condition
 				if xi == self.sizexi -1:
 					print('evaluate eastern BC')
 					result = self.getBounCond(xi, eta, 'e')
@@ -110,6 +137,7 @@ class HeatFlow(Problem):
 					# cell is not at east boundary
 					E  = self.cells[xi +1 , eta   ].center 
 					De = k*((ne.y-se.y)**2+(ne.x-se.x)**2)/((ne.x-se.x)*(E.y-P.y)-(ne.y-se.y)*(E.x-P.x))
+					Ne = 0
 					
 					#equation 4.15
 					self.Amatrix[PId,PId] -= De
@@ -119,7 +147,25 @@ class HeatFlow(Problem):
 					self.Amatrix[EId,EId] -= De
 					self.Amatrix[EId,PId] += De
 					
-				#northern boundary condition
+					# non cartesian #
+					
+					# phi_ne
+					if eta == self.sizeeta -1:
+						# at north boundary...
+						pass
+					else:
+						gammas = getGammas(ne,(P,N,NE,E))
+						self.Amatrix[PId,(PId,NId,NEId,EId)] += Ne * gammas/sum(gammas) 
+					
+					# phi_se
+					if eta == 0:
+						# at south boundary... 
+						pass
+					else:
+						gammas = getGammas(se,(P,S,SE,E))
+						self.Amatrix[PId,(PId,SId,SEId,EId)] -= Ne * gammas/sum(gammas) 
+					
+				#north boundary condition
 				if eta == self.sizeeta -1:
 					print('evaluate northern BC')
 					result = self.getBounCond(xi, eta, 'n')
@@ -133,9 +179,10 @@ class HeatFlow(Problem):
 						print('Neumann Rand noch nicht implementiert')
 
 				elif eta < self.sizeeta-1 :
-					#kv geoert nicht zum Nordrand
+					# cell is not at north boundary
 					N  = self.cells[xi, eta + 1].center 
-					Dn = k*((ne.x-nw.x)**2+(ne.y-nw.y)**2)/((ne.y-nw.y)*(N.x-P.x)-(ne.x-nw.x)*(N.y-P.y)) 
+					Dn = k*((ne.x-nw.x)**2+(ne.y-nw.y)**2)/((ne.y-nw.y)*(N.x-P.x)-(ne.x-nw.x)*(N.y-P.y))
+					Nn = 0 
 				
 					#Fuellen des ersten Terms Formel 4.15 für aktuelles KV
 					self.Amatrix[PId,PId] -= Dn
@@ -145,7 +192,25 @@ class HeatFlow(Problem):
 					self.Amatrix[NId,PId] += Dn
 					self.Amatrix[NId,NId] -= Dn
 					
-				#southernfront
+										# non cartesian #
+					
+					# phi_ne
+					if xi == self.sizexi -1:
+						# at east boundary...
+						pass
+					else:
+						gammas = getGammas(ne,(P,N,NE,E))
+						self.Amatrix[PId,(PId,NId,NEId,EId)] += Nn * gammas/sum(gammas) 
+					
+					# phi_nw
+					if xi == 0:
+						# at west boundary... 
+						pass
+					else:
+						gammas = getGammas(nw,(P,W,NW,N))
+						self.Amatrix[PId,(PId,WId,NWId,NId)] -= Nn * gammas/sum(gammas) 
+						
+				#south boundary condition
 	
 				if eta == 0:
 					print('evaluate southern BC')
@@ -159,7 +224,7 @@ class HeatFlow(Problem):
 					if result[0] == 1:
 						print('Neumann Rand noch nicht implementiert')
 	
-				#western boundary condition
+				#west boundary condition
 				
 				if xi == 0:
 					print('evaluate western BC')
@@ -173,12 +238,13 @@ class HeatFlow(Problem):
 					if result[0] == 1:
 						print('Neumann Rand noch nicht implementiert')
 
-				print(self.Amatrix)
-				
-				print(self.bvector)
 		
 		# add sources
 		for key,q in self.SourceTerm.items():
 			print(str(key)+'\n'+str(q))
-			self.bvector[getId(key[0],key[1])] += q 
+			self.bvector[getId(key[0],key[1])] += q
+		
+		print(self.Amatrix)
+				
+		print(self.bvector) 
 				
