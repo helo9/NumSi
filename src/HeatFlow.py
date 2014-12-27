@@ -137,7 +137,7 @@ class HeatFlow(Problem):
 					# cell is not at east boundary
 					E  = self.cells[xi +1 , eta   ].center 
 					De = k*((ne.y-se.y)**2+(ne.x-se.x)**2)/((ne.x-se.x)*(E.y-P.y)-(ne.y-se.y)*(E.x-P.x))
-					Ne = 0
+					Ne = k*((E.y - P.y) * (ne.y - se.y) + (E.x - P.x) * (ne.x - se.x)) / ((ne.y - se.y) * (E.x - P.x) - (ne.x - se.x) * (E.y - P.y) )
 					
 					#equation 4.15
 					self.Amatrix[PId,PId] -= De
@@ -151,20 +151,38 @@ class HeatFlow(Problem):
 					
 					# phi_ne
 					if eta == self.sizeeta -1:
-						# at north boundary...
-						pass
+						# at north boundary
+						result = self.getBounCond(xi, eta, 'n')
+						if result[0] == 0:
+							self.bvector[PId] -= Ne*result[1]
+							self.bvector[EId] += Ne*result[1] #das wurde aus Symetriegründen einfach mal angenommen
+						if result[0] == 1:
+							print('Neumann Rand noch nicht implementiert')
+						
 					else:
 						gammas = getGammas(ne,(P,N,NE,E))
 						self.Amatrix[PId,(PId,NId,NEId,EId)] += Ne * gammas/sum(gammas) 
-					
+						self.Amatrix[EId,(PId,NId,NEId,EId)] -= Ne * gammas/sum(gammas) #wurde auch aus symmetriegründen mal so angenommen 
+						
 					# phi_se
 					if eta == 0:
-						# at south boundary... 
-						pass
+						# at south boundary...
+						result = self.getBounCond(xi, eta, 's')
+						if result[0] == 0:
+							self.bvector[PId] += Ne*result[1]
+							self.bvector[EId] -= Ne*result[1] #das wurde aus Symetriegründen einfach mal angenommen
+						 
+						if result[0] == 1:
+							print('Neumann Rand noch nicht implementiert') 
+						
 					else:
 						gammas = getGammas(se,(P,S,SE,E))
 						self.Amatrix[PId,(PId,SId,SEId,EId)] -= Ne * gammas/sum(gammas) 
-					
+						self.Amatrix[EId,(PId,SId,SEId,EId)] += Ne * gammas/sum(gammas) #ebenfalls angenommen
+				
+				
+				
+				
 				#north boundary condition
 				if eta == self.sizeeta -1:
 					print('evaluate northern BC')
@@ -182,7 +200,8 @@ class HeatFlow(Problem):
 					# cell is not at north boundary
 					N  = self.cells[xi, eta + 1].center 
 					Dn = k*((ne.x-nw.x)**2+(ne.y-nw.y)**2)/((ne.y-nw.y)*(N.x-P.x)-(ne.x-nw.x)*(N.y-P.y))
-					Nn = 0 
+					Nn = k*((N.y - P.y) * (nw.y - ne.y) + (N.x - P.x) * (nw.x - ne.x)) / ((ne.x - nw.x) * (N.y - P.y) - (ne.y - nw.y) * (N.x - P.x) )
+					
 				
 					#Fuellen des ersten Terms Formel 4.15 für aktuelles KV
 					self.Amatrix[PId,PId] -= Dn

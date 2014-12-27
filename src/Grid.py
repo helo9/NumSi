@@ -14,6 +14,7 @@ class Boundary(object):
 	def getWest(self):
 		pass
 
+
 class CartesianBoundary(Boundary):
 	def __init__(self,xmax,ymax,M,N):
 		self.xmax = xmax
